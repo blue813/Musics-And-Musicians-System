@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>添加音乐</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+
+    <div id="app">
+
+        <el-container>
+            <el-aside width="200px" style="background-color:#545c64">
+                <div class="blue">
+                    <i class="el-icon-apple"></i>
+                    <i class="el-icon-pear"></i>
+                    <i class="el-icon-service"></i>
+                    <i class="el-icon-pear"></i>
+                    <i class="el-icon-apple"></i>
+                    <p>喜欢的歌与歌手</p>
+                    <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+                        background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                        <el-submenu index="1">
+                            <template slot="title">
+                                <i class="el-icon-location"></i>
+                                <span>音乐</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="1-1" @click="add()">添加音乐</el-menu-item>
+                                <el-menu-item index="1-2" @click="list()">音乐列表</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <i class="el-icon-discover"></i>
+                                <span>音乐人</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="2-1" @click="addP()">添加音乐人</el-menu-item>
+                                <el-menu-item index="2-2" @click="listP()">音乐人列表</el-menu-item>
+                        </el-submenu>
+                        <el-menu-item index="4" @click="set()">
+                            <i class="el-icon-setting"></i>
+                            <span slot="title">设置</span>
+                            </el-menu-item>
+                    </el-menu>
+                </div>
+            </el-aside>
+            <el-container>
+                <el-header style="background-color:#545c64">为你的喜欢保驾护航
+                    <el-avatar src="../image/头像.jpg" style="position: absolute; right: 0;"></el-avatar>
+                </el-header>
+                <el-main>
+                    <el-row>
+                        <el-col :offset="6" :span="12">
+                            <el-form :model="musicForm" :rules="rules" ref="musicForm" label-width="100px" class="demo-ruleForm">
+                                <el-form-item label="音乐名" prop="name">
+                                    <el-input v-model="musicForm.musicName"></el-input>
+                                </el-form-item>
+                                <el-form-item label="作曲者" prop="composer">
+                                    <el-input v-model="musicForm.composer"></el-input>
+                                </el-form-item>
+                                <el-form-item label="价格" prop="price">
+                                    <el-input v-model="musicForm.price"></el-input>
+                                </el-form-item>
+                                <el-form-item label="描述" prop="desc">
+                                    <el-input v-model="musicForm.desc"></el-input>
+                                </el-form-item>
+            
+                                <el-form-item>
+                                    <el-button type="primary" @click.prevent="addMusic()">立即创建</el-button>            
+                                </el-form-item>
+                                <el-form-item label="想修改的id" prop="id">
+                                    <el-input v-model="musicForm.modifyid"></el-input>
+                                </el-form-item>
+                                <el-form-item label="like" prop="like">
+                                    <el-input v-model="musicForm.like"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click.prevent="bindt(musicForm.modifyid)">绑定其数据</el-button>            
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click.prevent="confirmt()">确认修改</el-button>            
+                                </el-form-item>
+                            </el-form>
+                        </el-col>
+                    </el-row>
+
+                </el-main>
+                <el-footer style="width: 50%; margin: 0 auto;">
+                </el-footer>
+            </el-container>
+        </el-container>
+
+    </div>
+
+
+    <div id="app">
+
+
+
+    </div>
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        axios.defaults.withCredentials = true;
+        new Vue({
+            el: '#app',
+            data: {
+                musicForm: {
+                    modifyid:null,
+                    musicName: '',
+                    composer: '',
+                    price: null,
+                    desc:'',
+                    like:null,
+                },
+                rules: {
+                    title: [
+                        { required: true, message: '请输入书名', trigger: 'blur' }
+                    ],
+                    price: [
+                        { required: true, message: '请输入价格', trigger: 'blur' }
+                        // ,
+                        // { type: 'number',message: '价格必须是数字', trigger: 'blur' }
+                    ]
+                }
+            },
+            methods: {
+                bindt(i){
+                   // axios.post('http://localhost:9000/music/lok', { params: { i}} ).then(res => {
+                        //if (res.data.isOk) {
+                         //   this.musicForm.musicName=res.data.music.musicName;
+                         //   this.musicForm.composer=res.data.music.composer;
+                         //   this.musicForm.price=res.data.music.price;
+                         //   this.musicForm.desc=res.data.music.desc;
+                       // }
+                        //else{
+                         //   alert(i);
+                        //    alert(res.data.msg);
+                        //    alert("没有对应的id");
+                        //}
+                   // })
+                },
+                confirmt(){
+                    let fd = new FormData();
+                    fd.append('musicName', this.musicForm.musicName);
+                    fd.append('price', this.musicForm.price);
+                    fd.append('desc', this.musicForm.desc);
+                    fd.append('composer', this.musicForm.composer);
+                    fd.append('musicId', this.musicForm.id);
+                    fd.append('like', this.musicForm.like);
+                    axios.post('http://localhost:9000/music/modify', fd).then(res => {
+                        if (res.data.isOk) {
+                            this.$message(res.data.msg);
+                            location.href = 'musicList.html';
+                        }
+                        else{
+                            this.$message(res.data.msg);
+                        }
+                    })
+
+                },
+                addMusic() {
+                    let fd = new FormData();
+                    fd.append('musicName', this.musicForm.musicName);
+                    fd.append('price', this.musicForm.price);
+                    fd.append('desc', this.musicForm.desc);
+                    fd.append('composer', this.musicForm.composer);
+                    axios.post('http://localhost:9000/music/add', fd).then(res => {
+                        if (res.data.isOk) {
+                            alert(res.data.msg);
+                            location.href = 'musicList.html';
+                        }
+                        else{
+                            alert(res.data.msg);
+                        }
+                    })
+                },
+                add() {
+                    location.href = 'musicAdd.html'
+                },
+                list() {
+                    location.href = 'musiclist.html'
+                },
+                addP() {
+                    location.href = 'musicPAdd.html'
+                },
+                listP() {
+                    location.href = 'musicPlist.html'
+                },
+                set() {
+                    location.href = 'set.html'
+                },
+            }
+        })
+    </script>
+</body>
+
+</html>

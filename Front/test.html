@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>音乐列表</title>
+    <style>
+        .center {
+            text-align: center;
+        }
+
+        .blue {
+            background: rgb(57, 96, 96);
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+
+        <el-container>
+            <el-aside width="200px" style="background-color:#545c64">
+                <div class="blue">
+                    <i class="el-icon-apple"></i>
+                    <i class="el-icon-pear"></i>
+                    <i class="el-icon-service"></i>
+                    <i class="el-icon-pear"></i>
+                    <i class="el-icon-apple"></i>
+                    <p>喜欢的歌与歌手</p>
+                    <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+                        background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                        <el-submenu index="1">
+                            <template slot="title">
+                                <i class="el-icon-location"></i>
+                                <span>音乐</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="1-1" @click="add()">添加音乐</el-menu-item>
+                                <el-menu-item index="1-2" href="add.html">音乐列表</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <i class="el-icon-discover"></i>
+                                <span>音乐人</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="2-1">添加音乐人</el-menu-item>
+                                <el-menu-item index="2-2">音乐列表</el-menu-item>
+                        </el-submenu>
+                    </el-menu>
+                </div>
+            </el-aside>
+            <el-container>
+                <el-header style="background-color:#545c64">Header
+                    <el-avatar src="../image/头像.jpg" style="position: absolute; right: 0;"></el-avatar>
+                </el-header>
+                <el-main>
+                    <el-table :data="books" border style="width: 100%">
+                        <el-table-column fixed prop="bookId" label="编号" width="70">
+                        </el-table-column>
+                        <el-table-column prop="title" label="书名" width="300">
+                        </el-table-column>
+                        <el-table-column prop="price" label="价格" width="120">
+                        </el-table-column>
+                        <el-table-column prop="desc" label="描述" width="500">
+                        </el-table-column>
+
+                        <el-table-column label="操作" width="100">
+                            <template slot-scope="scope">
+
+                                <el-popconfirm :title="`确定删除'${scope.row.title}'？`"
+                                    @confirm="delBook(scope.row.bookId)">
+                                    <el-button circle icon="el-icon-delete" slot="reference"></el-button>
+                                </el-popconfirm>
+                            </template>
+                        </el-table-column>
+                    </el-table>
+
+                </el-main>
+                <el-footer style="width: 50%; margin: 0 auto;">
+                    <el-pagination @current-change="handleCurrentChange" background layout="prev, pager, next"
+                        :current-page="pn" :page-size="10" :total="1000">
+                    </el-pagination>
+                </el-footer>
+            </el-container>
+        </el-container>
+
+    </div>
+
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        axios.defaults.withCredentials = true;
+        new Vue({
+            el: '#app',
+            data: {
+                pn:1,
+                books: []
+            },
+            methods: {
+                loadBooks(pn) {
+                    axios.get('http://localhost:9000/book/list',{params:{pn}}).then(res => {
+                            if (res.data.isOk) {
+                                // alert(res.data.msg);
+                                this.$message('加载数据成功');
+                                this.books = res.data.books;
+                            }
+                            else {
+                                alert(res.data.msg)
+                            }
+                        })
+                },
+                delBook(id) {
+                    axios.get('http://localhost:9000/book/del', { params: { id } }).then(res => {
+                        alert(res.data.msg);
+                        this.loadBooks()
+                    })
+                },
+                handleCurrentChange(pn) { //当当前页页码大小发生变化
+                    // 输出查看
+                    this.loadBooks(pn);
+                },
+                add() {
+                    alert("1");
+                    location.href = 'add.html'
+                },
+                du() {
+                    alert(" ")
+                }
+            },
+            created() {
+                //Vue对象创建完成时，执行的钩子函数
+                this.loadBooks(1)
+            }
+        })
+    </script>
+</body>
+
+</html>

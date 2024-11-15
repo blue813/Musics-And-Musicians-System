@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>音乐列表</title>
+    <style>
+        .center {
+            text-align: center;
+        }
+
+        .blue {
+            background: rgb(57, 96, 96);
+        }
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+
+<body>
+    <div id="app">
+
+        <el-container>
+            <el-aside width="200px" style="background-color:#545c64">
+                <div class="blue">
+                    <i class="el-icon-apple"></i>
+                    <i class="el-icon-pear"></i>
+                    <i class="el-icon-service"></i>
+                    <i class="el-icon-pear"></i>
+                    <i class="el-icon-apple"></i>
+                    <p>喜欢的歌与歌手</p>
+                    <el-menu default-active="2" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+                        background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
+                        <el-submenu index="1">
+                            <template slot="title">
+                                <i class="el-icon-location"></i>
+                                <span>音乐</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="1-1" @click="add()">添加音乐</el-menu-item>
+                                <el-menu-item index="1-2" @click="list()">音乐列表</el-menu-item>
+                        </el-submenu>
+                        <el-submenu index="2">
+                            <template slot="title">
+                                <i class="el-icon-discover"></i>
+                                <span>音乐人</span>
+                            </template>
+                            <el-menu-item-group>
+                                <el-menu-item index="2-1" @click="addP()">添加音乐人</el-menu-item>
+                                <el-menu-item index="2-2" @click="listP()">音乐人列表</el-menu-item>
+                        </el-submenu>
+                        <el-menu-item index="4" @click="set()">
+                            <i class="el-icon-setting"></i>
+                            <span slot="title">设置</span>
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+            </el-aside>
+            <el-container>
+                <el-header style="background-color:#545c64">为你的喜欢保驾护航
+                    <el-avatar src="../image/头像.jpg" style="position: absolute; right: 0;"></el-avatar>
+                </el-header>
+
+                <el-main>
+                    <el-button @click="exit">安全退出</el-button>
+                    <el-input placeholder="请输入你的留言" v-model="txt"></el-input>
+                    <el-button type="primary" @click.prevent="adddd()">添加</el-button>
+
+                    <el-table :data="notes" border style="width: 100%">
+                        <el-table-column fixed prop="nId" label="编号" width="70">
+                        </el-table-column>
+                        <el-table-column prop="txt" label="留言" width="1200">
+                        </el-table-column>
+                    </el-table>
+                </el-main>
+
+                <el-footer style="display: flex; width: 50%; margin: 0 auto;">
+                    <el-pagination @current-change="handleCurrentChange" background layout="prev, pager, next"
+                        :current-page="pn" :page-size="10" :total="1000">
+                    </el-pagination>
+                    <el-input placeholder="请输入想跳转的页数" v-model="page" style="flex:2;margin-right: 10px;"></el-input>
+                    <el-button circle icon="el-icon-umbrella" @click.prevent="skip()"  style="flex:1;margin-right: 10px;" ></el-button>              
+                </el-footer>
+
+            </el-container>
+        </el-container>
+
+    </div>
+
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        axios.defaults.withCredentials = true;
+        new Vue({
+            el: '#app',
+            data: {
+                pn: 1,
+                page: 1,
+                notes: [],
+                txt: "",
+                quaryName: "",
+            },
+            methods: {
+                exit() {
+                    axios.get('http://localhost:9000/user/exit').then(res => {
+                        if (!res.data.isOk) {
+                            alert("你还没登录呢");
+                        }
+                        else {
+                            alert("安全退出成功");
+                        }
+                        location.href = 'userLogin.html';
+                    })
+                },
+                loadMusics(pn) {
+                    axios.get('http://localhost:9000/note/list', { params: { pn } }).then(res => {
+                        if (res.data.isOk) {
+                            // style="width: 50%; margin: 0 auto;"可以让子元素居中
+                            // alert(res.data.msg);
+                            if (res.data.notes != null) {
+                                //this.$message('加载数据成功');
+                                this.notes = res.data.notes;
+                            }
+                            else {
+                                this.$message(res.data.msg);
+                                this.notes = res.data.notes;
+                            }
+                        }
+                        else {
+                            alert(res.data.msg)
+                        }
+                    })
+                },
+                adddd(){
+                    let fd = new FormData();
+                    fd.append('txt', this.txt);
+                    axios.post('http://localhost:9000/note/add', fd).then(res => {
+                        if (res.data.isOk) {
+                            this.$message(res.data.msg);
+                        }
+                        else{
+                            this.$message(res.data.msg);
+                        }
+                    })
+
+                },
+                delMusic(id) {
+                    axios.get('http://localhost:9000/music/del', { params: { id } }).then(res => {
+                        //alert(res.data.msg);
+                        this.$message('删除' + res.data.msg + "成功");
+                        this.loadMusics(this.page)
+                    })
+                },
+                likeMusic(id, like) {
+                    axios.get('http://localhost:9000/music/like', { params: { id, like } }).then(res => {
+                        this.$message(res.data.msg);
+                        this.loadMusics(this.page)
+                    })
+                },
+                query() {
+                    name = this.quaryName;
+                    axios.get('http://localhost:9000/music/search', { params: { name } }).then(res => {
+                        this.$message(res.data.msg);
+                        this.musics = res.data.musics;
+                    })
+                },
+                skip() {
+                    this.pn = this.page;
+                    this.loadMusics(this.page);
+                },
+                handleCurrentChange(pn) {
+                    this.page = pn;
+                    this.loadMusics(pn);
+                },
+                add() {
+                    location.href = 'musicAdd.html'
+                },
+                list() {
+                    location.href = 'musiclist.html'
+                },
+                addP() {
+                    location.href = 'musicPAdd.html'
+                },
+                listP() {
+                    location.href = 'musicPlist.html'
+                },
+                set() {
+                    location.href = 'set.html'
+                },
+                du() {
+                    alert(" ")
+                }
+            },
+            created() {
+                //Vue对象创建完成时，执行的钩子函数
+                this.loadMusics(this.page)
+            }
+        })
+    </script>
+</body>
+
+</html>
